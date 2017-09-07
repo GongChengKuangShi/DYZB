@@ -16,6 +16,8 @@ private let kNormalItemH = kItemW * 3 / 4
 private let kPrortyItemH = kItemW * 4 / 3
 private let kHeaderViewH : CGFloat = 50
 
+private let kCycleViewH = kScreenW * 3 / 8
+
 private let kNormalCellID = "kNormalCellID"
 private let kHeaderViewID = "kHeaderViewID"
 private let kPrortyCellID = "kPrortyCellID"
@@ -23,6 +25,8 @@ private let kPrortyCellID = "kPrortyCellID"
 class RecommentdViewController: UIViewController {
 
     // -- 懒加载
+    lazy var recommendVM : RecommendViewModel = RecommendViewModel()
+    
     lazy var collectionView : UICollectionView = { [unowned self] in
         //1、创建布局
         let layout = UICollectionViewFlowLayout()
@@ -47,6 +51,12 @@ class RecommentdViewController: UIViewController {
         return collectionView
     }()
     
+    lazy var cycleView : RecommandCycleView = {
+        let cycleView = RecommandCycleView.recommandCycleView()
+        cycleView.frame = CGRect(x: 0, y: -kCycleViewH, width: kScreenW, height: kCycleViewH)
+        return cycleView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -55,8 +65,8 @@ class RecommentdViewController: UIViewController {
         //设置UI界面
         setupUI()
         
-        
-        
+        //数据请求
+        loadData()
     }
 
 }
@@ -66,44 +76,53 @@ class RecommentdViewController: UIViewController {
 extension RecommentdViewController {
     func setupUI() {
         view.addSubview(collectionView)
+        
+        //添加cycleView
+        collectionView.addSubview(cycleView)
+        
+        //设置collectView的内边距
+        collectionView.contentInset = UIEdgeInsetsMake(kCycleViewH, 0, 0, 0)
     }
 }
 
 //MARK: 遵守UIcollectionView的代理协议
 extension RecommentdViewController : UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 12
+        return recommendVM.anchorGroup.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if section == 1 {
-            return 12
-        }
+        let group = recommendVM.anchorGroup[section]
         
-        return 4
+        return group.anchers.count
     }
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
+        //取出模型
+        let group = recommendVM.anchorGroup[indexPath.section]
+        let ancher = group.anchers[indexPath.item]
         
-        var cell : UICollectionViewCell
+        var cell : CollectionBaseCell!
+        
         if indexPath.section == 1 {
-            cell = collectionView.dequeueReusableCell(withReuseIdentifier: kPrortyCellID, for: indexPath)
+            cell = collectionView.dequeueReusableCell(withReuseIdentifier: kPrortyCellID, for: indexPath) as! CollectionPrortyViewCell
         } else {
-            cell = collectionView.dequeueReusableCell(withReuseIdentifier: kNormalCellID , for: indexPath)
+            cell = collectionView.dequeueReusableCell(withReuseIdentifier: kNormalCellID , for: indexPath) as! CollectionNormalViewCell
         }
         
-        
-        
+        cell.anchor = ancher
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         //1、取出section的HeaderView
-        let headView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kHeaderViewID, for: indexPath)
+        let headView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kHeaderViewID, for: indexPath) as! CollectionHeaderView
         
+        //2、取出模型
+         headView.group = recommendVM.anchorGroup[indexPath.section]
         
         
         return headView
@@ -116,5 +135,14 @@ extension RecommentdViewController : UICollectionViewDataSource, UICollectionVie
         }
         
         return CGSize(width: kItemW, height: kNormalItemH)
+    }
+}
+
+//--发送网络请求
+extension RecommentdViewController {
+    func loadData() {
+        recommendVM.requestData {
+            self.collectionView.reloadData()
+        }
     }
 }

@@ -5,7 +5,8 @@ use_frameworks!
 
 target 'DouYuTV' do
 
-
+pod 'Alamofire'
+pod 'Kingfisher'
   # Pods for DouYuTV
 
   target 'DouYuTVTests' do
@@ -13,9 +14,9 @@ target 'DouYuTV' do
     pod 'Alamofire'
   end
 
-  target 'DouYuTVUITests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
+#  target 'DouYuTVUITests' do
+#    inherit! :search_paths
+#    # Pods for testing
+#  end
 
 end
