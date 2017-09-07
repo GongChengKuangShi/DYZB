@@ -8,6 +8,8 @@
 
 //抓取数据（抓包）:http://study.163.com/course/courseLearn.htm?courseId=1003309014&from=study#/learn/video?lessonId=1004015396&courseId=1003309014
 
+//课件地址: http://study.163.com/course/courseLearn.htm?courseId=1003309014&from=study#/learn/video?lessonId=1004020290&courseId=1003309014
+
 import UIKit
 
 private let kItemMargin : CGFloat = 10
