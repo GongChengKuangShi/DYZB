@@ -22,9 +22,6 @@ class CollectionPrortyViewCell: CollectionBaseCell {
             //降属性传递给父类
             super.anchor = anchor
             cityButton.setTitle(anchor?.anchor_city, for: .normal)
-            
-
         }
     }
-
 }

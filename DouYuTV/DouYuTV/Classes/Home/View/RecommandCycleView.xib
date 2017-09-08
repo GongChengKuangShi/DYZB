@@ -29,14 +29,13 @@
                     </connections>
                 </collectionView>
                 <pageControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="3" translatesAutoresizingMaskIntoConstraints="NO" id="TbS-Fg-beP">
-                    <rect key="frame" x="326" y="43" width="39" height="37"/>
+                    <rect key="frame" x="326" y="48" width="39" height="37"/>
                     <color key="pageIndicatorTintColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                     <color key="currentPageIndicatorTintColor" red="1" green="0.60895648272736547" blue="0.15022714562901007" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                 </pageControl>
             </subviews>
-            <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="TbS-Fg-beP" secondAttribute="bottom" id="6h3-da-Y0J"/>
+                <constraint firstAttribute="bottom" secondItem="TbS-Fg-beP" secondAttribute="bottom" constant="-5" id="6h3-da-Y0J"/>
                 <constraint firstItem="zKA-8Z-cMg" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="INJ-2H-Ktb"/>
                 <constraint firstAttribute="trailing" secondItem="TbS-Fg-beP" secondAttribute="trailing" constant="10" id="MuD-3C-FnX"/>
                 <constraint firstAttribute="bottom" secondItem="zKA-8Z-cMg" secondAttribute="bottom" id="TIW-nb-lCf"/>

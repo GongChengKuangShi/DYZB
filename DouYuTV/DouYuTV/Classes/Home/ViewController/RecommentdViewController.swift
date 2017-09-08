@@ -16,7 +16,9 @@ private let kItemMargin : CGFloat = 10
 private let kItemW = (kScreenW - 3 * kItemMargin) / 2
 private let kNormalItemH = kItemW * 3 / 4
 private let kPrortyItemH = kItemW * 4 / 3
+
 private let kHeaderViewH : CGFloat = 50
+private let kGameViewH   : CGFloat  = 90
 
 private let kCycleViewH = kScreenW * 3 / 8
 
@@ -55,8 +57,15 @@ class RecommentdViewController: UIViewController {
     
     lazy var cycleView : RecommandCycleView = {
         let cycleView = RecommandCycleView.recommandCycleView()
-        cycleView.frame = CGRect(x: 0, y: -kCycleViewH, width: kScreenW, height: kCycleViewH)
+        cycleView.frame = CGRect(x: 0, y: -(kCycleViewH + kGameViewH), width: kScreenW, height: kCycleViewH)
         return cycleView
+    }()
+    
+    lazy var gameView : RecommandGameView = {
+        let gameView = RecommandGameView.recommandGameView()
+        gameView.frame = CGRect(x: 0, y: -kGameViewH, width: kScreenW, height: kGameViewH)
+        
+        return gameView
     }()
     
     override func viewDidLoad() {
@@ -82,8 +91,13 @@ extension RecommentdViewController {
         //添加cycleView
         collectionView.addSubview(cycleView)
         
+        //添加gameView进入collectionView
+        collectionView.addSubview(gameView)
+        
         //设置collectView的内边距
-        collectionView.contentInset = UIEdgeInsetsMake(kCycleViewH, 0, 0, 0)
+        collectionView.contentInset = UIEdgeInsetsMake(kCycleViewH + kGameViewH, 0, 0, 0)
+        
+        
     }
 }
 
@@ -124,9 +138,7 @@ extension RecommentdViewController : UICollectionViewDataSource, UICollectionVie
         let headView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: kHeaderViewID, for: indexPath) as! CollectionHeaderView
         
         //2、取出模型
-         headView.group = recommendVM.anchorGroup[indexPath.section]
-        
-        
+        headView.group = recommendVM.anchorGroup[indexPath.section]
         return headView
     }
     
@@ -143,8 +155,21 @@ extension RecommentdViewController : UICollectionViewDataSource, UICollectionVie
 //--发送网络请求
 extension RecommentdViewController {
     func loadData() {
+        
+        //请求推荐数据
         recommendVM.requestData {
             self.collectionView.reloadData()
+            
+            //将数据传到gameView
+            self.gameView.groups = self.recommendVM.anchorGroup
+        }
+        
+        //请求轮播数据
+        recommendVM.requestCycleData {
+              self.cycleView.cycleModel = self.recommendVM.cycleModel
         }
     }
 }
+
+
+

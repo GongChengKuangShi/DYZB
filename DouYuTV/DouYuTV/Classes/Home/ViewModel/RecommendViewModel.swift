@@ -13,11 +13,14 @@ class RecommendViewModel {//如果用不到父类的东西，那么可以不继�
     lazy var anchorGroup : [AnchorGroup] = [AnchorGroup]()
     lazy var bigDataGroup: AnchorGroup = AnchorGroup()//热门
     lazy var protyDataGroup: AnchorGroup = AnchorGroup()//颜值
+    lazy var cycleModel : [CycleModel] = [CycleModel]()//无限轮播
 }
 
 
 // -- 发送网络请求
 extension RecommendViewModel {
+    
+    //请求数据(创建一个闭包，给外界传递数据)
     func requestData(finishCallback : @escaping () -> ()) {
         
         //0、定义参数
@@ -127,5 +130,23 @@ extension RecommendViewModel {
             finishCallback()
         }
 
+    }
+    
+    //无限轮播数据请求
+    func requestCycleData(finishCallback : @escaping () -> ()) {
+        NetworkTools.requestData(.GET, URLString: "http://www.douyutv.com/api/v1/slide/6", parameters: ["version" : "2.300"]) { (result) in
+            print(result)
+            
+            guard let resultDict = result as? [String : NSObject] else {return}
+            
+            guard let dataArray = resultDict["data"] as? [[String : NSObject]] else {return}
+            
+            //字典转模型
+            for dic in dataArray {
+                self.cycleModel.append(CycleModel(dict:dic))
+            }
+            
+            finishCallback()
+        }
     }
 }

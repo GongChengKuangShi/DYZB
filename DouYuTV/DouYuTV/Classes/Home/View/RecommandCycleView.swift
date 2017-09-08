@@ -10,7 +10,30 @@ import UIKit
 
 private let kCycleCellID = "kCycleCellID"
 
+
 class RecommandCycleView: UIView {
+    
+    //定时器
+    var cycleTimer : Timer?
+    //--定义属性
+    var cycleModel : [CycleModel]? {
+        didSet {
+            collectionView.reloadData()
+            
+            //设置pageController的个数
+            pageViewControl.numberOfPages = cycleModel?.count ?? 0
+            
+            //默认滚动到中间的一个位置
+            
+            let indexPath = NSIndexPath(row: (cycleModel!.count ) * 10, section: 0)
+            collectionView.scrollToItem(at: indexPath as IndexPath, at: .left, animated: false)
+            
+            
+            //添加定时器
+            removeCycleTimer()
+            addCycleTimer()
+        }
+    }
     
     
     @IBOutlet weak var collectionView: UICollectionView!
@@ -24,7 +47,7 @@ class RecommandCycleView: UIView {
         autoresizingMask = UIViewAutoresizing(rawValue: UInt(noErr))
         
         //注册cell
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: kCycleCellID)
+        collectionView.register(UINib(nibName: "CollectionCycleCell", bundle: nil), forCellWithReuseIdentifier: kCycleCellID)
         
         //注：在这里设置layout的大小不能够拿到最正确的size，需要在layoutSubviews中才行
         
@@ -35,12 +58,6 @@ class RecommandCycleView: UIView {
         //设置layout
         let layout = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
         layout.itemSize = collectionView.bounds.size
-//        layout.minimumLineSpacing = 0
-//        layout.minimumInteritemSpacing = 0
-//        layout.scrollDirection = .vertical
-//        collectionView.isPagingEnabled = true
-        
-
     }
 }
 
@@ -58,15 +75,62 @@ extension RecommandCycleView {
 extension RecommandCycleView : UICollectionViewDataSource {
  
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 6
+//        return cycleModel?.count ?? 0//可选值，补全，成确定值,
+        return (cycleModel?.count ?? 0) * 10000//无限轮播
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: kCycleCellID, for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: kCycleCellID, for: indexPath) as! CollectionCycleCell
         
-        cell.backgroundColor = indexPath.item % 2 == 0 ? UIColor.red : UIColor.orange
-        
+        cell.cycleModel = cycleModel![indexPath.item % cycleModel!.count]//无限轮播（%cycleModel!.count）
+
         return cell
     }
 }
+
+extension RecommandCycleView : UICollectionViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        //1、获取滚动的偏移量
+//        let offsetX = scrollView.contentOffset.x
+        let offsetX = scrollView.contentOffset.x + scrollView.bounds.width * 0.5//这个是scrollview滚动到一半，那个page
+        
+        //计算pageController的currentIndex
+        pageViewControl.currentPage = Int(offsetX / scrollView.bounds.width) % (cycleModel!.count )//取模，无限轮播
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        removeCycleTimer()
+    }
+    
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        addCycleTimer()
+    }
+}
+
+//定时器的操作方法 (定时器用法) http://www.jianshu.com/p/ca95d8504439
+
+extension RecommandCycleView {
+    func addCycleTimer() {
+        
+        cycleTimer = Timer(timeInterval: 3.0, target: self, selector: #selector(self.scrollToNext), userInfo: nil, repeats: true)
+        RunLoop.main.add(cycleTimer!, forMode: RunLoopMode.commonModes)
+    }
+    
+    @objc func removeCycleTimer() {
+        cycleTimer?.invalidate()//从运行循环中移除
+        cycleTimer = nil
+    }
+    
+    @objc func scrollToNext() {
+        //滚动偏移量
+        let currentOffsetX = collectionView.contentOffset.x
+        let offsetx = currentOffsetX + collectionView.bounds.width
+        
+        //滚动的位置
+        collectionView.setContentOffset(CGPoint(x: offsetx, y: 0), animated: true)
+    }
+}
+
+ 
